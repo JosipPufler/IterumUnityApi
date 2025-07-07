@@ -1,0 +1,37 @@
+## Ignore build results
+[Bb]in/
+[Oo]bj/
+
+## Ignore user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Ignore build logs and VS-specific folders
+.vs/
+*.log
+
+## Ignore Rider files if using JetBrains IDEs
+.idea/
+*.sln.iml
+## Ignore NuGet packages
+*.nupkg
+packages/
+*.snupkg
+
+## Ignore temporary files
+*.tmp
+*.bak
+*.swp
+*.cache
+
+## Ignore config transforms (optional)
+appsettings.Development.json
+secrets.json
+
+## Ignore publish output
+publish/
+
+# Ignore only launchSettings.json
+IterumApi/Properties/launchSettings.json
