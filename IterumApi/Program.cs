@@ -50,6 +50,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<MapRepo>();
+builder.Services.AddScoped<CharacterRepo>();
 builder.Services.AddSingleton<MongoDbService>();
 
 var app = builder.Build();
