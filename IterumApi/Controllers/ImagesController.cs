@@ -1,10 +1,7 @@
 ﻿using IterumApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using IterumApi.DTOs;
-using IterumApi.Repositories;
 using Amazon.S3;
 
 namespace IterumApi.Controllers
@@ -48,7 +45,7 @@ namespace IterumApi.Controllers
             var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (username == null)
                 return Unauthorized();
-
+            filename = Uri.UnescapeDataString(filename);
             var keyName = $"{username}/images/{filename}";
 
             try
@@ -70,20 +67,20 @@ namespace IterumApi.Controllers
         }
 
         [Authorize]
-        [HttpGet("preview/{filename}")]
+        [HttpGet("preview/{filePath}")]
         public async Task<IActionResult> PreviewImage(string filePath)
         {
             var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (username == null)
                 return Unauthorized();
-
-            var fileName = Path.GetFileName(filePath);
+            filePath = Uri.UnescapeDataString(filePath);
+            var fileNameForReturn = Path.GetFileName(filePath);
             try
             {
                 var stream = await BucketService.DownloadStreamAsync(filePath);
                 var contentType = GetContentType(filePath);
                 Response.Headers.ContentLength = stream.Length;
-                return File(stream, contentType, fileName);
+                return File(stream, contentType, fileNameForReturn);
             }
             catch (AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
