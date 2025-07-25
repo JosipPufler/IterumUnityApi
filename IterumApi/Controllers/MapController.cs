@@ -31,7 +31,7 @@ namespace IterumApi.Controllers
             try
             {
                 Map map = await _mapRepo.CreateAsync(new Map(mapDto, userId));
-                return Ok(new MapDto(map.Id, map.Name, map.Hexes, map.IsFlatTopped, mapDto.maxX, mapDto.maxY));
+                return Ok(new MapDto(map.Id, map.Name, map.Hexes, map.IsFlatTopped, mapDto.MaxX, mapDto.MaxY));
             }
             catch (Exception ex)
             {

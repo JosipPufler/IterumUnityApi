@@ -8,8 +8,8 @@ namespace IterumApi.DTOs
         public string Name {  get; set; }
         public List<Hex> Hexes { get; set; }
         public bool IsFlatTopped { get; set; }
-        public int maxX;
-        public int maxY;
+        public int MaxX { get; set; }
+        public int MaxY { get; set; }
 
         public MapDto()
         {
@@ -22,8 +22,8 @@ namespace IterumApi.DTOs
             Hexes = hexs;
             Id = id;
             IsFlatTopped = isFlatTopped;
-            this.maxX = maxX;
-            this.maxY = maxY;
+            MaxX = maxX;
+            MaxY = maxY;
         }
     }
 }

@@ -2,7 +2,6 @@
 using IterumApi.Models;
 using IterumApi.Repositories;
 using IterumApi.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IterumApi.Controllers

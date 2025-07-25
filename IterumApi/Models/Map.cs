@@ -17,8 +17,8 @@ namespace IterumApi.Models
             UserId = userId;
             Hexes = mapDto.Hexes;
             IsFlatTopped = mapDto.IsFlatTopped;
-            MaxX = mapDto.maxX;
-            MaxY = mapDto.maxY;
+            MaxX = mapDto.MaxX;
+            MaxY = mapDto.MaxY;
         }
 
         [BsonId]

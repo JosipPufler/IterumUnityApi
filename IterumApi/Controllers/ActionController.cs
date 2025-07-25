@@ -112,5 +112,24 @@ namespace IterumApi.Controllers
                 return StatusCode(500, "Action fetch failed");
             }
         }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ActionDto>> GetActionById(string id)
+        {
+            try
+            {
+                Action? action = await _actionRepo.GetByIdAsync(id);
+                if (action == null)
+                {
+                    return NotFound();
+                }
+                return Ok(new ActionDto(action.Id, action.Name, action.Description, action.ApCost, action.MpCost, action.Data));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(500, "Action fetch failed");
+            }
+        }
     }
 }

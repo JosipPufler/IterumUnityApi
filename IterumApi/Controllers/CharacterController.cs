@@ -19,7 +19,7 @@ namespace IterumApi.Controllers
 
         [Authorize]
         [HttpPost("save")]
-        public async Task<ActionResult<CharacterDto>> CreateMap([FromBody] CharacterDto characterDto)
+        public async Task<ActionResult<CharacterDto>> CreateCharacter([FromBody] CharacterDto characterDto)
         {
             if (!long.TryParse(User.FindFirst("userId")?.Value, out long userId))
             {
