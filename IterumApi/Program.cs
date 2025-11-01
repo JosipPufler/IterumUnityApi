@@ -52,6 +52,8 @@ builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<MapRepo>();
 builder.Services.AddScoped<CharacterRepo>();
 builder.Services.AddScoped<ActionRepo>();
+builder.Services.AddScoped<RoleRepo>();
+builder.Services.AddScoped<ItemRepo>();
 builder.Services.AddSingleton<MongoDbService>();
 
 var app = builder.Build();

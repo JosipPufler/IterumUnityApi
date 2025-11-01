@@ -8,10 +8,12 @@ namespace IterumApi.Repositories
     public class CharacterRepo
     {
         private readonly IMongoCollection<Character> _collection;
+        private readonly IUserRepo _userRepo;
 
-        public CharacterRepo(MongoDbService dbService)
+        public CharacterRepo(MongoDbService dbService, IUserRepo userRepo)
         {
             _collection = dbService.GetCollection<Character>("characters");
+            _userRepo = userRepo;
         }
 
         public async Task<List<Character>> GetAllAsync() =>
@@ -29,17 +31,19 @@ namespace IterumApi.Repositories
             return map;
         }
 
-        public async Task<bool> UpdateAsync(Character updatedMap)
+        public async Task<bool> UpdateAsync(Character updatedCharacter, long userId)
         {
-            var existing = await _collection.Find(x => x.Id == updatedMap.Id).FirstOrDefaultAsync();
-
+            var existing = await _collection.Find(x => x.Id == updatedCharacter.Id).FirstOrDefaultAsync();
+            updatedCharacter.UserId = existing.UserId;
             if (existing == null)
                 return false;
+            var user = await _userRepo.GetByIdAsync(userId);
+            if (user == null) return false;
 
-            if (existing.UserId != updatedMap.UserId)
+            if (existing.UserId != userId && user.Role.Name != RoleNameEnum.ADMIN.ToString())
                 return false;
 
-            var result = await _collection.ReplaceOneAsync(x => x.Id == updatedMap.Id, updatedMap);
+            var result = await _collection.ReplaceOneAsync(x => x.Id == updatedCharacter.Id, updatedCharacter);
             return result.IsAcknowledged && result.ModifiedCount > 0;
         }
 

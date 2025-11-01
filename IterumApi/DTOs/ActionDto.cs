@@ -2,10 +2,7 @@
 {
     public class ActionDto
     {
-        public ActionDto()
-        {
-            
-        }
+        public ActionDto(){}
 
         public ActionDto(string id, string name, string description, int apCost, int mpCost, string data)
         {

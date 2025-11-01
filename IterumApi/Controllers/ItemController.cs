@@ -3,24 +3,23 @@ using IterumApi.Models;
 using IterumApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace IterumApi.Controllers
 {
-    [Route("iterum/api/characters")]
+    [Route("/iterum/api/[controller]")]
     [ApiController]
-    public class CharacterController : ControllerBase
+    public class ItemController : ControllerBase
     {
-        private readonly CharacterRepo _characterRepo;
+        private readonly ItemRepo _itemRepo;
 
-        public CharacterController(CharacterRepo characterRepo)
+        public ItemController(ItemRepo itemRepo)
         {
-            _characterRepo = characterRepo;
+            _itemRepo = itemRepo;
         }
 
         [Authorize]
         [HttpPost("save")]
-        public async Task<ActionResult<CharacterDto>> CreateCharacter([FromBody] CharacterDto characterDto)
+        public async Task<ActionResult<ItemDto>> CreateItem([FromBody] ItemDto itemDto)
         {
             if (!long.TryParse(User.FindFirst("userId")?.Value, out long userId))
             {
@@ -29,28 +28,28 @@ namespace IterumApi.Controllers
 
             try
             {
-                characterDto.OwnerId = userId;
-                Character character = await _characterRepo.CreateAsync(new Character(characterDto));
-                return Ok(new CharacterDto(character.Id, character.Name, character.Level, character.IsPlayer, character.Data, userId));
+                Item item = await _itemRepo.CreateAsync(new Item(itemDto, userId));
+                return Ok(new ItemDto(item));
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return StatusCode(500, "Character creation failed");
+                return StatusCode(500, "Item creation failed");
             }
         }
 
         [Authorize]
         [HttpPut("update")]
-        public async Task<ActionResult> UpdateCharacter([FromBody] CharacterDto characterDto)
+        public async Task<ActionResult> UpdateItem([FromBody] ItemDto itemDto)
         {
             if (!long.TryParse(User.FindFirst("userId")?.Value, out long userId))
             {
                 return Unauthorized();
             }
+
             try
             {
-                bool result = await _characterRepo.UpdateAsync(new Character(characterDto), userId);
+                bool result = await _itemRepo.UpdateAsync(new Item(itemDto, userId));
                 if (!result)
                 {
                     return StatusCode(401);
@@ -61,13 +60,13 @@ namespace IterumApi.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return StatusCode(500, "Character update failed");
+                return StatusCode(500, "Item update failed");
             }
         }
 
         [Authorize]
         [HttpDelete("delete/{id}")]
-        public async Task<ActionResult> DeleteCharacter(string id)
+        public async Task<ActionResult> DeleteItem(string id)
         {
             if (!long.TryParse(User.FindFirst("userId")?.Value, out long userId))
             {
@@ -76,7 +75,7 @@ namespace IterumApi.Controllers
 
             try
             {
-                bool result = await _characterRepo.DeleteAsync(id, userId);
+                bool result = await _itemRepo.DeleteAsync(id, userId);
                 if (!result)
                 {
                     return StatusCode(401);
@@ -87,13 +86,13 @@ namespace IterumApi.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return StatusCode(500, "Character deletion failed");
+                return StatusCode(500, "Item deletion failed");
             }
         }
 
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<List<CharacterDto>>> GetCharacters()
+        public async Task<ActionResult<List<ActionDto>>> GetItems()
         {
             if (!long.TryParse(User.FindFirst("userId")?.Value, out long userId))
             {
@@ -102,13 +101,32 @@ namespace IterumApi.Controllers
 
             try
             {
-                List<Character> maps = await _characterRepo.GetAllByUserIdAsync(userId);
-                return Ok(maps.Select(character => new CharacterDto(character.Id, character.Name, character.Level, character.IsPlayer, character.Data, userId)));
+                List<Item> items = await _itemRepo.GetAllByUserIdAsync(userId);
+                return Ok(items.Select(item => new ItemDto(item)).ToList());
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return StatusCode(500, "Character fetch failed");
+                return StatusCode(500, "Action fetch failed");
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Item>> GetItemById(string id)
+        {
+            try
+            {
+                Item? item = await _itemRepo.GetByIdAsync(id);
+                if (item == null)
+                {
+                    return NotFound();
+                }
+                return Ok(new ItemDto(item));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(500, "Action fetch failed");
             }
         }
     }

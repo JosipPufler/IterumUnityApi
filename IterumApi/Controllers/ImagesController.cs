@@ -67,7 +67,7 @@ namespace IterumApi.Controllers
         }
 
         [Authorize]
-        [HttpGet("preview/{filePath}")]
+        [HttpGet("preview/{*filePath}")]
         public async Task<IActionResult> PreviewImage(string filePath)
         {
             var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

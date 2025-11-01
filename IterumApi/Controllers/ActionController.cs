@@ -1,9 +1,7 @@
 ﻿using IterumApi.DTOs;
-using IterumApi.Models;
 using IterumApi.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using Action = IterumApi.Models.Action;
 
 namespace IterumApi.Controllers
@@ -103,8 +101,8 @@ namespace IterumApi.Controllers
 
             try
             {
-                List<Action> maps = await _actionRepo.GetAllByUserIdAsync(userId);
-                return Ok(maps.Select(action => new ActionDto(action.Id, action.Name, action.Description, action.ApCost, action.MpCost, action.Data)));
+                List<Action> actions = await _actionRepo.GetAllByUserIdAsync(userId);
+                return Ok(actions.Select(action => new ActionDto(action.Id, action.Name, action.Description, action.ApCost, action.MpCost, action.Data)).ToList());
             }
             catch (Exception ex)
             {

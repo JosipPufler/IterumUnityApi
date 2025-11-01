@@ -4,42 +4,42 @@ using MongoDB.Driver;
 
 namespace IterumApi.Repositories
 {
-    public class MapRepo
+    public class ItemRepo
     {
-        private readonly IMongoCollection<Map> _collection;
+        private readonly IMongoCollection<Item> _collection;
 
-        public MapRepo(MongoDbService dbService)
+        public ItemRepo(MongoDbService dbService)
         {
-            _collection = dbService.GetCollection<Map>("maps");
+            _collection = dbService.GetCollection<Item>("items");
         }
 
-        public async Task<List<Map>> GetAllAsync() =>
+        public async Task<List<Item>> GetAllAsync() =>
             await _collection.Find(_ => true).ToListAsync();
 
-        public async Task<Map?> GetByIdAsync(string id) =>
+        public async Task<Item?> GetByIdAsync(string id) =>
             await _collection.Find(u => u.Id == id).FirstOrDefaultAsync();
 
-        public async Task<List<Map>> GetAllByUserIdAsync(long userId) =>
+        public async Task<List<Item>> GetAllByUserIdAsync(long userId) =>
             await _collection.Find(x => x.UserId == userId).ToListAsync();
 
-        public async Task<Map> CreateAsync(Map map)
+        public async Task<Item> CreateAsync(Item item)
         {
-            await _collection.InsertOneAsync(map);
-            return map;
+            await _collection.InsertOneAsync(item);
+            return item;
         }
 
-        public async Task<bool> UpdateAsync(Map updatedMap)
+        public async Task<bool> UpdateAsync(Item updatedItem)
         {
-            var existing = await _collection.Find(x => x.Id == updatedMap.Id).FirstOrDefaultAsync();
+            var existing = await _collection.Find(x => x.Id == updatedItem.Id).FirstOrDefaultAsync();
 
             if (existing == null)
                 return false;
 
-            if (existing.UserId != updatedMap.UserId)
+            if (existing.UserId != updatedItem.UserId)
                 return false;
 
-            var result = await _collection.ReplaceOneAsync(x => x.Id == updatedMap.Id, updatedMap);
-            return result.IsAcknowledged && result.ModifiedCount >= 0;
+            var result = await _collection.ReplaceOneAsync(x => x.Id == updatedItem.Id, updatedItem);
+            return result.IsAcknowledged && result.ModifiedCount > 0;
         }
 
         public async Task<bool> DeleteAsync(string id, long userId)

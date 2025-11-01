@@ -14,20 +14,21 @@ namespace IterumApi.Controllers
     public class SessionController : ControllerBase
     {
         private readonly IUserRepo _userRepo;
-        private readonly IConfiguration _configuration;
-        private Random _random = new Random();
+        private readonly IConfiguration _config;
+        private readonly Random _random = new();
         static readonly Dictionary<string, (SessionConnectionInfo info, Process process)> instances = [];
 
-        private readonly object _lock = new();
+        private readonly Lock _lock = new();
 
         private const int MaxPort = 8000;
         private const int MinPort = 7000;
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        private const string pathToExecutable = @"C:\Builds\Server\HeadlessServer.exe";
 
-        public SessionController(IUserRepo userRepo, IConfiguration configuration)
+        public SessionController(IUserRepo userRepo, IConfiguration config)
         {
             _userRepo = userRepo;
-            _configuration = configuration;
+            _config = config;
         }
 
         public Task<int> GetFreePort()
@@ -50,7 +51,7 @@ namespace IterumApi.Controllers
                 string newCode;
                 do
                 {
-                    newCode = new string(Enumerable.Repeat(chars, 6).Select(s => s[_random.Next(s.Length)]).ToArray());
+                    newCode = new string([.. Enumerable.Repeat(chars, 6).Select(s => s[_random.Next(s.Length)])]);
                 } while (instances.Keys.Any(x => x == newCode));
                 return newCode;
             });
@@ -104,17 +105,14 @@ namespace IterumApi.Controllers
 
             string sessionCode = await GetNewSessionCode();
             int port = await GetFreePort();
-            //string ip = HttpContext.Connection.LocalIpAddress?.ToString() ?? "127.0.0.1";
             string ip = "127.0.0.1";
             SessionConnectionInfo sessionConnectionInfo = new(sessionCode, port, ip, [userId], userId);
 
-            var exePath = @"C:\Builds\Server\HeadlessServer.exe";
             Process process = Process.Start(new ProcessStartInfo
             {
-                FileName = exePath,
-                WorkingDirectory = Path.GetDirectoryName(exePath),
-                Arguments = $"-batchmode -nographics -port {port} -sessionCode {sessionCode}",
-                //CreateNoWindow = true,
+                FileName = pathToExecutable,
+                WorkingDirectory = Path.GetDirectoryName(pathToExecutable),
+                Arguments = $"-batchmode -nographics -port {port} -sessionCode {sessionCode} -adminUsername {Environment.GetEnvironmentVariable("ITERUM_ADMIN_USERNAME")} -adminPassword {Environment.GetEnvironmentVariable("ITERUM_ADMIN_PASSWORD")}",
                 UseShellExecute = false
             });
 

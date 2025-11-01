@@ -16,30 +16,32 @@ namespace IterumApi.Repositories
     public class UserRepo : IUserRepo
     {
         private readonly IterumDbContext _context;
+        private readonly RoleRepo _roleRepo;
 
-        public UserRepo(IterumDbContext context)
+        public UserRepo(IterumDbContext context, RoleRepo roleRepo)
         {
             _context = context;
+            _roleRepo = roleRepo;
         }
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users.Include(u => u.Role).ToListAsync();
         }
 
         public async Task<User?> GetByIdAsync(long id)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<User?> GetByUserNameAsync(string username)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Username == username);
+            return await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(x => x.Username == username);
         }
 
         public async Task<User?> LoginAsync(LoginForm loginForm)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Username == loginForm.Username);
+            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(x => x.Username == loginForm.Username);
             if (user == null)
                 return null;
 
@@ -50,11 +52,7 @@ namespace IterumApi.Repositories
         {
             try
             {
-                var user = new User
-                {
-                    Username = registerForm.Username,
-                    Password = BCrypt.Net.BCrypt.HashPassword(registerForm.Password)
-                };
+                var user = new User(registerForm.Username, BCrypt.Net.BCrypt.HashPassword(registerForm.Password), (await _roleRepo.GetByNameAsync(RoleNameEnum.USER.ToString())).Id);
 
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
@@ -63,6 +61,10 @@ namespace IterumApi.Repositories
             catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("duplicate") == true)
             {
                 Console.WriteLine("Username must be unique");
+                return null;
+            }
+            catch {
+                Console.WriteLine("Oops something went wrong");
                 return null;
             }
         }

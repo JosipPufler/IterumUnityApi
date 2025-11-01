@@ -10,11 +10,15 @@ namespace IterumApi
         }
 
         public DbSet<User> Users => Set<User>();
+        public DbSet<Role> Roles => Set<Role>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
-                .HasIndex(u => u.Username)
+                .HasIndex(user => user.Username)
+                .IsUnique();
+            modelBuilder.Entity<Role>()
+                .HasIndex(role => role.Name)
                 .IsUnique();
         }
     }

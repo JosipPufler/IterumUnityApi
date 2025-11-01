@@ -6,14 +6,14 @@ namespace IterumApi.Models
 {
     public class Character
     {
-        public Character(CharacterDto characterDto, long userId)
+        public Character(CharacterDto characterDto)
         {
             if (characterDto.Id != null)
             {
                 Id = characterDto.Id;
             }
             Name = characterDto.Name;
-            UserId = userId;
+            UserId = characterDto.OwnerId;
             Level = characterDto.Level;
             IsPlayer = characterDto.IsPlayer;
             Data = characterDto.Data;
